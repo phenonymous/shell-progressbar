@@ -1,6 +1,8 @@
 ## shell-progressbar
 An asynchronous progressbar for bash shell scripts inspired by APT
 
+![bar](https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/images/progressbar.gif)
+
 ### Installation:
 
 Put this anywhere in your script by using cURL
