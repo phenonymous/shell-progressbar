@@ -208,7 +208,7 @@ Stop() {
   GetTerminalSize
   if ((LINES > 0)); then
     #-- Passing +2 here because we changed tty size to 1 less than it actually is
-    SetupTerminalScrollArea $((LINES+2))
+    SetupTerminalScrollArea $((LINES+1))
 
     #-- Flush progress bar
     ${flush}
