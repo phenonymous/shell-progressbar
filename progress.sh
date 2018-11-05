@@ -49,9 +49,9 @@ last_reported_progress=-1
 #-- In which rate reporting should be done
 reporting_steps=${reporting_steps:-1}     # reporting_step can be set by the caller, defaults to 1
 
-foreground=${foreground:-$(tput setaf 0)} # Foreground can be set by the caller, defaults to black
-background=${background:-$(tput setab 2)} # Background can be set by the caller, defaults to green
-reset_color=$(tput sgr0)
+foreground="${foreground:-$(tput setaf 0)}" # Foreground can be set by the caller, defaults to black
+background="${background:-$(tput setab 2)}" # Background can be set by the caller, defaults to green
+reset_color="$(tput sgr0)"
 
 #-- Command aliases for readability
 save_cursor='tput sc'
@@ -72,51 +72,51 @@ flush='tput ed'
 #-- That might not be efficient - research needs to be done
 #-- FUTURE: [[ is non-standard, replace with [
 
-floor() {
+math::floor() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds down to nearest integer
-  [[ -n ${FUNCTION_OUTPUT[floor]:-} ]] && FUNCTION_OUTPUT[floor]=''
-  FUNCTION_OUTPUT[floor]=$(awk -v f="$1" 'BEGIN{f=int(f); print f}')
+  [[ -n "${FUNCTION_OUTPUT[floor]:-}" ]] && FUNCTION_OUTPUT[floor]=''
+  FUNCTION_OUTPUT[floor]="$(awk -v f="$1" 'BEGIN{f=int(f); print f}')"
 }
 
-ceiling() {
+math::ceiling() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds up to nearest integer
-  [[ -n ${FUNCTION_OUTPUT[ceiling]:-} ]] && FUNCTION_OUTPUT[ceiling]=''
-  FUNCTION_OUTPUT[ceiling]=$(awk -v f="$1" 'BEGIN{f=int(f)+1; print f}')
+  [[ -n "${FUNCTION_OUTPUT[ceiling]:-}" ]] && FUNCTION_OUTPUT[ceiling]=''
+  FUNCTION_OUTPUT[ceiling]="$(awk -v f="$1" 'BEGIN{f=int(f)+1; print f}')"
 }
 
-round() {
+math::round() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds to nearest integer
-  [[ -n ${FUNCTION_OUTPUT[round]:-} ]] && FUNCTION_OUTPUT[round]=''
-  FUNCTION_OUTPUT[round]=$(awk -v f="$1" 'BEGIN {printf "%.0f\n", f}')
+  [[ -n "${FUNCTION_OUTPUT[round]:-}" ]] && FUNCTION_OUTPUT[round]=''
+  FUNCTION_OUTPUT[round]="$(awk -v f="$1" 'BEGIN {printf "%.0f\n", f}')"
 }
 
-min() {
+math::min() {
   #-- Takes two values as arguments and compare them
-  [[ -n ${FUNCTION_OUTPUT[min]:-} ]] && FUNCTION_OUTPUT[min]=''
-  FUNCTION_OUTPUT[min]=$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; printf min "\n"}')
+  [[ -n "${FUNCTION_OUTPUT[min]:-}" ]] && FUNCTION_OUTPUT[min]=''
+  FUNCTION_OUTPUT[min]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; printf min "\n"}')"
 }
 
-max() {
+math::max() {
   #-- Takes two values as arguments and compare them
-  [[ -n ${FUNCTION_OUTPUT[max]:-} ]] && FUNCTION_OUTPUT[max]=''
-  FUNCTION_OUTPUT[max]=$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}')
+  [[ -n "${FUNCTION_OUTPUT[max]:-}" ]] && FUNCTION_OUTPUT[max]=''
+  FUNCTION_OUTPUT[max]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}')"
 }
 
 #-- TODO: Change name?
-floatMultiplication() {
+math::float_multiplication() {
   #-- Takes two floats and multiply them
-  [[ -n ${FUNCTION_OUTPUT[floatMultiplication]:-} ]] && FUNCTION_OUTPUT[floatMultiplication]=''
-  FUNCTION_OUTPUT[floatMultiplication]=$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 * f2}')  
+  [[ -n "${FUNCTION_OUTPUT[multiplication]:-}" ]] && FUNCTION_OUTPUT[multiplication]=''
+  FUNCTION_OUTPUT[multiplication]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 * f2}')  "
 }
 
 #-- TODO: Change name?
-floatDivision() {
+math::float_division() {
   #-- Takes two floats and divide them
-  [[ -n ${FUNCTION_OUTPUT[floatDivision]:-} ]] && FUNCTION_OUTPUT[floatDivision]=''
-  FUNCTION_OUTPUT[floatDivision]=$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 / f2}')
+  [[ -n "${FUNCTION_OUTPUT[division]:-}" ]] && FUNCTION_OUTPUT[division]=''
+  FUNCTION_OUTPUT[division]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 / f2}')"
 }
 
 
@@ -128,9 +128,9 @@ floatDivision() {
 # ==================================================
 
 
-WorkerStatusChanged() {
-  [[ -n ${FUNCTION_OUTPUT[WorkerStatusChanged]:-} ]] && FUNCTION_OUTPUT[WorkerStatusChanged]=''
+__status_changed() {
   typeset -i StepsDone TotalSteps __int_percentage
+  
   ((StepsDone=$1))
   ((TotalSteps=$2))
   
@@ -138,16 +138,16 @@ WorkerStatusChanged() {
   #-- Sanity check reporting_steps, if this value is too big no progress will be written
   #-- Should that really be checked here?
 
-  floatDivision $StepsDone $TotalSteps
-  floatMultiplication "${FUNCTION_OUTPUT[floatDivision]}" "100.00"
-  percentage="${FUNCTION_OUTPUT[floatMultiplication]}"
+  math::float_division $StepsDone $TotalSteps
+  math::float_multiplication "${FUNCTION_OUTPUT[division]}" "100.00"
+  percentage="${FUNCTION_OUTPUT[multiplication]}"
   
-  round "$percentage"
+  math::round "$percentage"
 
   ((__int_percentage=FUNCTION_OUTPUT[round]))
 
   #-- FUTURE: printf -v is non-standard, for POSIX replace with subshell
-  printf -v progress_str "Progress: [%3li%%]" $__int_percentage
+  builtin printf -v progress_str "Progress: [%3li%%]" $__int_percentage
 
   if (( __int_percentage < (last_reported_progress + reporting_steps) )); then
     return 1
@@ -156,12 +156,12 @@ WorkerStatusChanged() {
   fi
 }
 
-GetTerminalSize(){
+__tty_size(){
   LINES=${LINES:-$(tput lines)}
   COLUMNS=${COLUMNS:-$(tput cols)}
 }
 
-SetupTerminalScrollArea() {
+__change_scroll_area() {
   typeset -i n_rows=$1
   #-- Return if number of lines is 1
   if (( n_rows <= 1)); then
@@ -172,7 +172,7 @@ SetupTerminalScrollArea() {
 
   #-- Go down one line to avoid visual glitch 
   #-- when terminal scroll region shrinks by 1
-  echo
+  builtin echo
 
   #-- Save cursor position
   ${save_cursor}
@@ -185,7 +185,7 @@ SetupTerminalScrollArea() {
 
   #-- Move up 1 line in case cursor was saved outside scroll region
   ${move_up}
-  echo
+  builtin echo
 
   #-- Set tty size to reflect changes to scroll region
   #-- this is to avoid i.e pagers to override the progress bar
@@ -194,21 +194,21 @@ SetupTerminalScrollArea() {
   #-- Temporarily disabling SIGWINCH to avoid a loop caused by stty sending SIGWINCH whenever theres a change in size
   trap '' WINCH
   stty rows $n_rows
-  trap HandleSIGWINCH WINCH
+  trap handle_sigwinch WINCH
 }
 
-Start() {
+bar::start() {
   #-- TODO: Track process that called this function
   # proc...
-  GetTerminalSize
-  SetupTerminalScrollArea $LINES
+  __tty_size
+  __change_scroll_area $LINES
 }
 
-Stop() {
-  GetTerminalSize
+bar::stop() {
+  __tty_size
   if ((LINES > 0)); then
     #-- Passing +2 here because we changed tty size to 1 less than it actually is
-    SetupTerminalScrollArea $((LINES+1))
+    __change_scroll_area $((LINES+1))
 
     #-- Flush progress bar
     ${flush}
@@ -217,25 +217,28 @@ Stop() {
   trap - WINCH
 }
 
-GetTextProgressStr() {
-  [[ -n ${FUNCTION_OUTPUT[GetTextProgressStr]:-} ]] && FUNCTION_OUTPUT[GetTextProgressStr]=''
+__progress_string() {
+  [[ -n ${FUNCTION_OUTPUT[progress]:-} ]] && FUNCTION_OUTPUT[progress]=''
+  
   local output Percent
   typeset -i OutputSize BarSize BarDone it
+  
   output=""
   Percent="$1"
   ((OutputSize=$2))
 
   #-- Return an empty string if OutputSize is less than 3
   if ((OutputSize < 3)); then
-    FUNCTION_OUTPUT[GetTextProgressStr]="$output"
+    FUNCTION_OUTPUT[progress]="$output"
     return 1
   fi
+
   ((BarSize=OutputSize-2))
   
-  floatMultiplication "$Percent" $BarSize
-  floor "${FUNCTION_OUTPUT[floatMultiplication]}"
-  min $BarSize "${FUNCTION_OUTPUT[floor]}"
-  max 0 "${FUNCTION_OUTPUT[min]}"
+  math::float_multiplication "$Percent" $BarSize
+  math::floor "${FUNCTION_OUTPUT[multiplication]}"
+  math::min $BarSize "${FUNCTION_OUTPUT[floor]}"
+  math::max 0 "${FUNCTION_OUTPUT[min]}"
   
   ((BarDone=FUNCTION_OUTPUT[max]))
   
@@ -247,17 +250,18 @@ GetTextProgressStr() {
     output+="."
   done
   output+="]"
-  FUNCTION_OUTPUT[GetTextProgressStr]="$output"
+  FUNCTION_OUTPUT[progress]="$output"
   return 0
 }
 
 #-- FIXME: Pass worker pid?
-StatusChanged() {
+bar::status_changed() {
   typeset -i StepsDone TotalSteps
+
   ((StepsDone=$1))
   ((TotalSteps=$2))
 
-  if ! WorkerStatusChanged $StepsDone $TotalSteps; then
+  if ! __status_changed $StepsDone $TotalSteps; then
     return 1
   fi
   
@@ -265,8 +269,8 @@ StatusChanged() {
   return $?
 }
 
-DrawStatusLine(){
-  GetTerminalSize
+__draw_status_line(){
+  __tty_size
   if (( LINES < 1 || COLUMNS< 1 )); then
     return 1
   fi
@@ -281,21 +285,21 @@ DrawStatusLine(){
 
   #-- Move to last row
   ${move_to} $((LINES-1)) 0
-  printf '%s' "${background}${foreground}${progress_str}${reset_color}"
+  builtin printf '%s' "${background}${foreground}${progress_str}${reset_color}"
 
   ((progressbar_size=COLUMNS-padding-${#progress_str}))
-  floatDivision "$percentage" "100.00"
-  current_percent="${FUNCTION_OUTPUT[floatDivision]}"
+  math::float_division "$percentage" "100.00"
+  current_percent="${FUNCTION_OUTPUT[division]}"
   
-  GetTextProgressStr ${current_percent} ${progressbar_size}
+  __progress_string ${current_percent} ${progressbar_size}
 
-  printf '%s' " ${FUNCTION_OUTPUT[GetTextProgressStr]} "
+  builtin builtin printf '%s' " ${FUNCTION_OUTPUT[progress]} "
 
   #-- Restore the cursor
   ${restore_cursor}
   ${enable_cursor}
 
-  round "$percentage"
+  math::round "$percentage"
   ((__int_percentage=FUNCTION_OUTPUT[round]))
 
   ((last_reported_progress=__int_percentage))
@@ -313,21 +317,21 @@ DrawStatusLine(){
 # ==================================================
 
 
-HandleSIGWINCH(){
-  GetTerminalSize
+handle_sigwinch(){
+  __tty_size
   typeset -i n_rows
   ((n_rows=LINES))
-  SetupTerminalScrollArea $n_rows
-  DrawStatusLine
+  __change_scroll_area $n_rows
+  __draw_status_line
 }
 
 #-- TODO: Trap this with SIGCHLD and let child fire this signal to parent
-HandleWorkerDone(){
+handle_worker_done(){
   echo 
 }
 
 
 ####################################################
 
-trap HandleSIGWINCH WINCH
+trap handle_sigwinch WINCH
 trap 'Stop; trap - EXIT' EXIT HUP INT QUIT PIPE TERM
