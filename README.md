@@ -41,7 +41,7 @@ when you're done and this function will restore the terminal size.
 ```sh
 #!/usr/bin/env bash
 
-. <(curl -so- "hhttps://raw.githubusercontent.com/phenonymous/shell-progressbar/master/progress.sh")
+. <(curl -so- "https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/progress.sh")
 
 Start
 
