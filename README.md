@@ -61,3 +61,12 @@ done
 
 Stop
 ```
+
+### Customization:
+
+You can change foreground and background color by setting these variables, shown below with defaults
+```sh
+foreground="$(tput setaf 0)" # black
+background="$(tput setaf 2)" # green
+```
+you can also tweak how often reporting should be done (in case of great number of steps and quick progressing) by setting `reporting_steps` to a value bigger than 1
