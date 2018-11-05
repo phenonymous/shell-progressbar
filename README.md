@@ -51,8 +51,10 @@ TotalSteps=${#StuffToDo[@]}
 
 for Stuff in ${StuffToDo[@]}; do
   # Do stuff
+  echo "Invoking ${Stuff} to do some stuffs..."
   StepsDone=$((${StepsDone:-0}+1))
   StatusChanged $StepsDone $TotalSteps
+  sleep 1
 done
 
 Stop
