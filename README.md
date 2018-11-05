@@ -1,5 +1,5 @@
 ## shell-progressbar
-An asynchronous progressbar for bash shell scripts
+An asynchronous progressbar for bash shell scripts inspired by APT
 
 ### Installation:
 
