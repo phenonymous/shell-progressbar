@@ -21,20 +21,20 @@ or by using wget
 Make a call to
 
 ```sh
-Start
+bar::start
 ```
 before any progress should be reported. This will setup the status line by shrinking the terminal scroll area by one row.
 Then determine the total steps to be reported - either you're using this in a loop or do manual reporting in your script. What ever way suits your needs, make a call to
 
 ```sh
-StatusChanged <steps done> <total steps>
+bar::status_changed <steps done> <total steps>
 ```
 whenever progress is made. This function will then determine if the status line should be updated.
 
 Finally make a call to
 
 ```sh
-Stop
+bar::stop
 ```
 when you're done and this function will restore the terminal size.
 
@@ -45,7 +45,7 @@ when you're done and this function will restore the terminal size.
 
 . <(curl -so- "https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/progress.sh")
 
-Start
+bar::start
 
 StuffToDo=("Stuff1" "Stuff2" "Stuff3")
 
@@ -55,11 +55,11 @@ for Stuff in ${StuffToDo[@]}; do
   # Do stuff
   echo "Invoking ${Stuff} to do some stuffs..."
   StepsDone=$((${StepsDone:-0}+1))
-  StatusChanged $StepsDone $TotalSteps
+  bar::status_changed $StepsDone $TotalSteps
   sleep 1
 done
 
-Stop
+bar::stop
 ```
 
 ### Customization:
