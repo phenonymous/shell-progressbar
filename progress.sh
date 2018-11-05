@@ -75,47 +75,47 @@ flush='tput ed'
 floor() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds down to nearest integer
-  [[ -z ${FUNCTION_OUTPUT[floor]} ]] || FUNCTION_OUTPUT[floor]=''
+  [[ -n ${FUNCTION_OUTPUT[floor]:-} ]] && FUNCTION_OUTPUT[floor]=''
   FUNCTION_OUTPUT[floor]=$(awk -v f="$1" 'BEGIN{f=int(f); print f}')
 }
 
 ceiling() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds up to nearest integer
-  [[ -z ${FUNCTION_OUTPUT[ceiling]} ]] || FUNCTION_OUTPUT[ceiling]=''
+  [[ -n ${FUNCTION_OUTPUT[ceiling]:-} ]] && FUNCTION_OUTPUT[ceiling]=''
   FUNCTION_OUTPUT[ceiling]=$(awk -v f="$1" 'BEGIN{f=int(f)+1; print f}')
 }
 
 round() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds to nearest integer
-  [[ -z ${FUNCTION_OUTPUT[round]} ]] || FUNCTION_OUTPUT[round]=''
+  [[ -n ${FUNCTION_OUTPUT[round]:-} ]] && FUNCTION_OUTPUT[round]=''
   FUNCTION_OUTPUT[round]=$(awk -v f="$1" 'BEGIN {printf "%.0f\n", f}')
 }
 
 min() {
   #-- Takes two values as arguments and compare them
-  [[ -z ${FUNCTION_OUTPUT[min]} ]] || FUNCTION_OUTPUT[min]=''
+  [[ -n ${FUNCTION_OUTPUT[min]:-} ]] && FUNCTION_OUTPUT[min]=''
   FUNCTION_OUTPUT[min]=$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; printf min "\n"}')
 }
 
 max() {
   #-- Takes two values as arguments and compare them
-  [[ -z ${FUNCTION_OUTPUT[max]} ]] || FUNCTION_OUTPUT[max]=''
+  [[ -n ${FUNCTION_OUTPUT[max]:-} ]] && FUNCTION_OUTPUT[max]=''
   FUNCTION_OUTPUT[max]=$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}')
 }
 
 #-- TODO: Change name?
 floatMultiplication() {
   #-- Takes two floats and multiply them
-  [[ -z ${FUNCTION_OUTPUT[floatMultiplication]} ]] || FUNCTION_OUTPUT[floatMultiplication]=''
+  [[ -n ${FUNCTION_OUTPUT[floatMultiplication]:-} ]] && FUNCTION_OUTPUT[floatMultiplication]=''
   FUNCTION_OUTPUT[floatMultiplication]=$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 * f2}')  
 }
 
 #-- TODO: Change name?
 floatDivision() {
   #-- Takes two floats and divide them
-  [[ -z ${FUNCTION_OUTPUT[floatDivision]} ]] || FUNCTION_OUTPUT[floatDivision]=''
+  [[ -n ${FUNCTION_OUTPUT[floatDivision]:-} ]] && FUNCTION_OUTPUT[floatDivision]=''
   FUNCTION_OUTPUT[floatDivision]=$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 / f2}')
 }
 
@@ -129,7 +129,7 @@ floatDivision() {
 
 
 WorkerStatusChanged() {
-  [[ -z ${FUNCTION_OUTPUT[WorkerStatusChanged]} ]] || FUNCTION_OUTPUT[WorkerStatusChanged]=''
+  [[ -n ${FUNCTION_OUTPUT[WorkerStatusChanged]:-} ]] && FUNCTION_OUTPUT[WorkerStatusChanged]=''
   typeset -i StepsDone TotalSteps __int_percentage
   ((StepsDone=$1))
   ((TotalSteps=$2))
@@ -218,7 +218,7 @@ Stop() {
 }
 
 GetTextProgressStr() {
-  [[ -z ${FUNCTION_OUTPUT[GetTextProgressStr]} ]] || FUNCTION_OUTPUT[GetTextProgressStr]=''
+  [[ -n ${FUNCTION_OUTPUT[GetTextProgressStr]:-} ]] && FUNCTION_OUTPUT[GetTextProgressStr]=''
   local output Percent
   typeset -i OutputSize BarSize BarDone it
   output=""
