@@ -208,7 +208,7 @@ bar::stop() {
   __tty_size
   if ((LINES > 0)); then
     #-- Passing +2 here because we changed tty size to 1 less than it actually is
-    __change_scroll_area $((LINES+1))
+    __change_scroll_area $((LINES+2))
 
     #-- Flush progress bar
     ${flush}
