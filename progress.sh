@@ -265,7 +265,7 @@ bar::status_changed() {
     return 1
   fi
   
-  DrawStatusLine
+  __draw_status_line
   return $?
 }
 
