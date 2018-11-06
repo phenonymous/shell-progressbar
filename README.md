@@ -8,12 +8,12 @@ An asynchronous progressbar for bash shell scripts inspired by APT
 Put this anywhere in your script by using cURL
 
 ```sh
-. <(curl -so- "https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/progress.sh")
+. <(curl -sLo- "https://git.io/progressbar")
 ```
 or by using wget
 
 ```sh
-. <(wget -qO- "https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/progress.sh")
+. <(wget -qO- "https://git.io/progressbar")
 ```
 
 ### Usage:
@@ -43,7 +43,7 @@ when you're done and this function will restore the terminal size.
 ```sh
 #!/usr/bin/env bash
 
-. <(curl -so- "https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/progress.sh")
+. <(curl -sLo- "https://git.io/progressbar")
 
 bar::start
 
