@@ -166,7 +166,7 @@ __change_scroll_area() {
   eval "${save_cursor}"
 
   #-- Set scroll region
-  eval "${scroll_area} 0 n_rows"
+  eval "${scroll_area} 0 $n_rows"
 
   #-- Restore cursor
   eval "${restore_cursor}"
