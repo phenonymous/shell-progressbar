@@ -24,7 +24,7 @@
 # FUTURE :   For future changes, this must be considered
 # IDEA   :   Ideas for future improvement or added features
 
-set -a
+set -aeuo pipefail
 #-- TODO: Write functions for debugging and logging
 #-- TODO: Write unit tests
 #-- IDEA: Use Bash Infinity
@@ -47,7 +47,8 @@ reporting_steps=${reporting_steps:-1}     # reporting_step can be set by the cal
 
 foreground="${foreground:-$(tput setaf 0)}" # Foreground can be set by the caller, defaults to black
 background="${background:-$(tput setab 2)}" # Background can be set by the caller, defaults to green
-reset_color="$(tput sgr0)"
+reset_color=$(tput sgr0)
+echo "Should be first echo"
 
 #-- Command aliases for readability
 # save_cursor='tput sc'
@@ -61,7 +62,7 @@ reset_color="$(tput sgr0)"
 
 # Wrap functions to make sure we use the right one
 # ==================================================
-PATH="/bin:/usr/bin:/sbin:$PATH"
+# PATH="/bin:/usr/bin:/sbin:$PATH"
 
 echo() {
   builtin echo "$@"
@@ -82,39 +83,39 @@ printf() {
 math::floor() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds down to nearest integer
-  echo "$(awk -v f="$1" 'BEGIN{f=int(f); print f}')"
+  awk -v f="$1" 'BEGIN{f=int(f); print f}'
 }
 
 math::ceiling() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds up to nearest integer
-  echo "$(awk -v f="$1" 'BEGIN{f=int(f)+1; print f}')"
+  awk -v f="$1" 'BEGIN{f=int(f)+1; print f}'
 }
 
 math::round() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds to nearest integer
-  echo "$(awk -v f="$1" 'BEGIN {printf "%.0f\n", f}')"
+  awk -v f="$1" 'BEGIN {printf "%.0f\n", f}'
 }
 
 math::min() {
   #-- Takes two values as arguments and compare them
-  echo "$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; printf min "\n"}')"
+  awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; printf min "\n"}'
 }
 
 math::max() {
   #-- Takes two values as arguments and compare them
-  echo "$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}')"
+  awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}'
 }
 
 math::float_multiplication() {
   #-- Takes two floats and multiply them
-  echo "$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 * f2}')  "
+  awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 * f2}'
 }
 
 math::float_division() {
   #-- Takes two floats and divide them
-  echo "$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 / f2}')"
+  awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 / f2}'
 }
 
 
@@ -274,6 +275,9 @@ bar::stop() {
     echo "Returning.." # Exit or return?
     return 1
   fi
+  #-- Reset bar::start check
+  E_STOP_INVOKED=0
+
   __tty_size
   if ((HEIGHT > 0)); then
     #-- Passing +2 here because we changed tty size to 1 less than it actually is
