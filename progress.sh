@@ -32,13 +32,6 @@ set -aeuo pipefail
 #-- TODO: Port to POSIX - this breaks the above idea
 #-- \___  Associative arrays are non-standard
 
-#-- Static global variables
-typeset background foreground reset_color 
-
-#-- Dynamic global variables
-typeset progress_str percentage
-typeset -i HEIGHT WIDTH last_reported_progress reporting_steps
-
 percentage="0.0"
 last_reported_progress=-1
 
@@ -47,8 +40,7 @@ reporting_steps=${reporting_steps:-1}     # reporting_step can be set by the cal
 
 foreground="${foreground:-$(tput setaf 0)}" # Foreground can be set by the caller, defaults to black
 background="${background:-$(tput setab 2)}" # Background can be set by the caller, defaults to green
-reset_color=$(tput sgr0)
-echo "Should be first echo"
+reset_color="$(tput sgr0)"
 
 #-- Command aliases for readability
 # save_cursor='tput sc'
