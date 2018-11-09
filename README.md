@@ -10,17 +10,17 @@ This version is POSIX compliant and should work in most shells
 Put this anywhere in your script by using cURL
 
 ```sh
-. <(curl -sLo- "https://git.io/progressbar")
+. <(curl -sLo- "https://git.io/progressbarposix")
 ```
 or by using wget
 
 ```sh
-. <(wget -qO- "https://git.io/progressbar")
+. <(wget -qO- "https://git.io/progressbarposix")
 ```
 
 Mac users can use the following instead, since sourcing directly from curl does not work
 ```sh
-eval "$(curl -sLo- "https://git.io/progressbar")"
+eval "$(curl -sLo- "https://git.io/progressbarposix")"
 ```
 
 You could also clone this repo and source it locally
