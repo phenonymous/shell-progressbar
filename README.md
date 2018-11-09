@@ -18,6 +18,8 @@ or by using wget
 
 ### Usage:
 
+<shadow>see customize for more options</shadow>
+
 Make a call to
 
 ```sh
@@ -62,11 +64,13 @@ done
 bar::stop
 ```
 
-### Customization:
+### Customization
 
-You can change foreground and background color by setting these variables, shown below with defaults
+If you want to customize your progress string then change the following variables, shown below with defaults
+
 ```sh
-foreground="$(tput setaf 0)" # black
-background="$(tput setaf 2)" # green
+LEFT_BRACKET=${[:-YOURSTRING]
+RIGHT_BRACKET=${]:-YOURSTRING}
+FILL=${#:-YOURSTRING}
+REMAIN=${.:-YOURSTRING}
 ```
-you can also tweak how often reporting should be done (in case of great number of steps and quick progressing) by setting `reporting_steps` to a value bigger than 1
