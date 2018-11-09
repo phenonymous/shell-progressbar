@@ -41,7 +41,7 @@ typeset -g background foreground reset_color
 
 #-- Dynamic global variables
 typeset -g progress_str percentage
-typeset -gi LINES COLUMNS last_reported_progress reporting_steps
+typeset -gi HEIGHT WIDTH last_reported_progress reporting_steps
 
 percentage="0.0"
 last_reported_progress=-1
@@ -54,14 +54,14 @@ background="${background:-$(tput setab 2)}" # Background can be set by the calle
 reset_color="$(tput sgr0)"
 
 #-- Command aliases for readability
-save_cursor='tput sc'
-restore_cursor='tput rc'
-disable_cursor='tput civis'
-enable_cursor='tput cnorm'
-scroll_area='tput csr'
-move_to='tput cup'
-move_up='tput cuu 2'
-flush='tput ed'
+# save_cursor='tput sc'
+# restore_cursor='tput rc'
+# disable_cursor='tput civis'
+# enable_cursor='tput cnorm'
+# scroll_area='tput csr'
+# move_to='tput cup'
+# move_up='tput cuu 2'
+# flush='tput ed'
 
 
 # Bash does not handle floats
@@ -157,8 +157,9 @@ __status_changed() {
 }
 
 __tty_size(){
-  LINES=${LINES:-$(tput lines)}
-  COLUMNS=${COLUMNS:-$(tput cols)}
+  set -- $(stty size)
+  HEIGHT=$1
+  WIDTH=$2
 }
 
 __change_scroll_area() {
@@ -175,16 +176,16 @@ __change_scroll_area() {
   builtin echo
 
   #-- Save cursor position
-  ${save_cursor}
+  tput sc
 
   #-- Set scroll region
-  ${scroll_area} 0 $n_rows
+  tput csr 0 23
 
   #-- Restore cursor
-  ${restore_cursor}
+  tput rc
 
   #-- Move up 1 line in case cursor was saved outside scroll region
-  ${move_up}
+  tput cuu 2
   builtin echo
 
   #-- Set tty size to reflect changes to scroll region
@@ -201,20 +202,23 @@ bar::start() {
   #-- TODO: Track process that called this function
   # proc...
   __tty_size
-  __change_scroll_area $LINES
+  __change_scroll_area $HEIGHT
 }
 
 bar::stop() {
   __tty_size
-  if ((LINES > 0)); then
+  stop_exitcode=-1
+  if ((HEIGHT > 0)); then
     #-- Passing +2 here because we changed tty size to 1 less than it actually is
-    __change_scroll_area $((LINES+2))
-
+    if __change_scroll_area $((HEIGHT+2)); then
+      stop_exitcode=0
+    fi
     #-- Flush progress bar
-    ${flush}
+    tput ed
   fi
   #-- Restore original (if any) handler
   trap - WINCH
+  return 0
 }
 
 __progress_string() {
@@ -271,7 +275,7 @@ bar::status_changed() {
 
 __draw_status_line(){
   __tty_size
-  if (( LINES < 1 || COLUMNS< 1 )); then
+  if (( HEIGHT < 1 || WIDTH< 1 )); then
     return 1
   fi
 
@@ -280,24 +284,25 @@ __draw_status_line(){
   ((padding=4))
 
   #-- Save the cursor
-  ${save_cursor}
-  ${disable_cursor}
+  tput sc
+  #-- Make cursor invisible
+  tput civis
 
   #-- Move to last row
-  ${move_to} $((LINES-1)) 0
+  tput cup $((HEIGHT)) 0
   builtin printf '%s' "${background}${foreground}${progress_str}${reset_color}"
 
-  ((progressbar_size=COLUMNS-padding-${#progress_str}))
+  ((progressbar_size=WIDTH-padding-${#progress_str}))
   math::float_division "$percentage" "100.00"
   current_percent="${FUNCTION_OUTPUT[division]}"
   
-  __progress_string ${current_percent} ${progressbar_size}
+  __progress_string "${current_percent}" ${progressbar_size}
 
-  builtin builtin printf '%s' " ${FUNCTION_OUTPUT[progress]} "
+  builtin printf '%s' " ${FUNCTION_OUTPUT[progress]} "
 
   #-- Restore the cursor
-  ${restore_cursor}
-  ${enable_cursor}
+  tput rc
+  tput cnorm
 
   math::round "$percentage"
   ((__int_percentage=FUNCTION_OUTPUT[round]))
@@ -320,9 +325,14 @@ __draw_status_line(){
 handle_sigwinch(){
   __tty_size
   typeset -i n_rows
-  ((n_rows=LINES))
+  ((n_rows=HEIGHT))
   __change_scroll_area $n_rows
   __draw_status_line
+}
+
+handle_exit(){
+  (( stop_exitcode )) && bar::stop
+  trap - EXIT
 }
 
 #-- TODO: Trap this with SIGCHLD and let child fire this signal to parent
@@ -334,4 +344,4 @@ handle_worker_done(){
 ####################################################
 
 trap handle_sigwinch WINCH
-trap 'Stop; trap - EXIT' EXIT HUP INT QUIT PIPE TERM
+trap handle_exit EXIT HUP INT QUIT PIPE TERM
