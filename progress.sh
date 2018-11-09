@@ -45,6 +45,11 @@ foreground="${foreground:-$(tput setaf 0)}" # Foreground can be set by the calle
 background="${background:-$(tput setab 2)}" # Background can be set by the caller, defaults to green
 reset_color="$(tput sgr0)"
 
+LEFT_BRACKET="${LEFT_BRACKET:-[}"
+RIGHT_BRACKET="${RIGHT_BRACKET:-]}"
+FILL="${FILL:-#}"
+REMAIN="${REMAIN:-.}"
+
 #-- Command aliases for readability
 save_cursor='tput sc'
 restore_cursor='tput rc'
@@ -212,12 +217,12 @@ bar::stop() {
     trap 'printf "\033[J"' ERR
 
     #-- Flush progress bar
-    tput ed
+    eval "${flush}"
    
     trap - ERR
     #-- Go up one row after flush
     echo
-    tput cuu1
+    eval "${move_up} 1"
   fi
   #-- Restore original (if any) handler
   trap - WINCH
@@ -249,14 +254,14 @@ __progress_string() {
   
   ((BarDone=FUNCTION_OUTPUT[max]))
   
-  output+="["
+  output+="${LEFT_BRACKET}"
   for (( it = 0; it < BarDone; it++ )); do
-    output+="#"
+    output+="${FILL}"
   done
   for (( it = 0; it < BarSize - BarDone; it++ )); do
-    output+="."
+    output+="${REMAIN}"
   done
-  output+="]"
+  output+="${RIGHT_BRACKET}"
   FUNCTION_OUTPUT[progress]="$output"
   return 0
 }
