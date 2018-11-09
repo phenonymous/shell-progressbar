@@ -188,20 +188,36 @@ __change_scroll_area() {
 bar::start() {
   #-- TODO: Track process that called this function
   # proc...
+  E_START_INVOKED=-1
   __tty_size
   __change_scroll_area $HEIGHT
 }
 
 bar::stop() {
+  E_STOP_INVOKED=-1
+  if (( ! ${E_START_INVOKED:-0} )); then
+    echo "Warn: bar::stop called but bar::start was not invoked" >&2 
+    echo "Returning.." # Exit or return?
+    return 1
+  fi
+  #-- Reset bar::start check
+  E_STOP_INVOKED=0
+
   __tty_size
-  stop_exitcode=-1
   if ((HEIGHT > 0)); then
     #-- Passing +2 here because we changed tty size to 1 less than it actually is
-    if __change_scroll_area $((HEIGHT+2)); then
-      stop_exitcode=0
-    fi
+    __change_scroll_area $((HEIGHT+2))
+
+    #-- tput ed might fail in which case we force clear
+    trap 'printf "\033[J"' ERR
+
     #-- Flush progress bar
-    eval "${flush}"
+    tput ed
+   
+    trap - ERR
+    #-- Go up one row after flush
+    echo
+    tput cuu1
   fi
   #-- Restore original (if any) handler
   trap - WINCH
@@ -247,7 +263,12 @@ __progress_string() {
 
 #-- FIXME: Pass worker pid?
 bar::status_changed() {
-  typeset -i StepsDone TotalSteps
+  if (( ! ${E_START_INVOKED:-0} )); then
+    echo "ERR: bar::start not called" >&2
+    echo "Exiting.."
+    exit 1
+  fi
+  local -i StepsDone TotalSteps
 
   ((StepsDone=$1))
   ((TotalSteps=$2))
@@ -318,17 +339,13 @@ handle_sigwinch(){
 }
 
 handle_exit(){
-  (( stop_exitcode )) && bar::stop
-  trap - EXIT
-}
-
-#-- TODO: Trap this with SIGCHLD and let child fire this signal to parent
-handle_worker_done(){
-  echo 
+  #-- if stop_exit doesn't have value it means it wasn't invoked
+  (( ! ${E_STOP_INVOKED:-0} )) && bar::stop
 }
 
 
 ####################################################
+
 
 trap handle_sigwinch WINCH
 trap handle_exit EXIT HUP INT QUIT PIPE TERM
