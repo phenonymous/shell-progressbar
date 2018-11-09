@@ -24,15 +24,7 @@
 # FUTURE :   For future changes, this must be considered
 # IDEA   :   Ideas for future improvement or added features
 
-#-- Error handling
-set -euo pipefail
-
-#-- TODO: Write functions for debugging and logging
-#-- TODO: Write unit tests
-#-- IDEA: Use Bash Infinity
-
-#-- TODO: Port to POSIX - this breaks the above idea
-#-- \___  Associative arrays are non-standard
+#-- TODO: Add customizble progress tokens ([#.]) --> ({o_})
 
 typeset -gA FUNCTION_OUTPUT
 
@@ -47,30 +39,27 @@ percentage="0.0"
 last_reported_progress=-1
 
 #-- In which rate reporting should be done
-reporting_steps=${reporting_steps:-1}     # reporting_step can be set by the caller, defaults to 1
+reporting_steps=${reporting_steps:-1}       # reporting_step can be set by the caller, defaults to 1
 
 foreground="${foreground:-$(tput setaf 0)}" # Foreground can be set by the caller, defaults to black
 background="${background:-$(tput setab 2)}" # Background can be set by the caller, defaults to green
 reset_color="$(tput sgr0)"
 
 #-- Command aliases for readability
-# save_cursor='tput sc'
-# restore_cursor='tput rc'
-# disable_cursor='tput civis'
-# enable_cursor='tput cnorm'
-# scroll_area='tput csr'
-# move_to='tput cup'
-# move_up='tput cuu 2'
-# flush='tput ed'
+save_cursor='tput sc'
+restore_cursor='tput rc'
+disable_cursor='tput civis'
+enable_cursor='tput cnorm'
+scroll_area='tput csr'
+move_to='tput cup'
+move_up='tput cuu'
+flush='tput ed'
 
+#-- TODO: Replace FUNCTION_OUTPUT with subshells, it's less confusing and the performance gain is negletible
 
 # Bash does not handle floats
 # This section defines some math functions using awk
 # ==================================================
-
-#-- IDEA: Use large numbers to simulate floating points
-#-- That might not be efficient - research needs to be done
-#-- FUTURE: [[ is non-standard, replace with [
 
 math::floor() {
   #-- This function takes a pseudo-floating point as argument
@@ -105,14 +94,12 @@ math::max() {
   FUNCTION_OUTPUT[max]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}')"
 }
 
-#-- TODO: Change name?
 math::float_multiplication() {
   #-- Takes two floats and multiply them
   [[ -n "${FUNCTION_OUTPUT[multiplication]:-}" ]] && FUNCTION_OUTPUT[multiplication]=''
   FUNCTION_OUTPUT[multiplication]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 * f2}')  "
 }
 
-#-- TODO: Change name?
 math::float_division() {
   #-- Takes two floats and divide them
   [[ -n "${FUNCTION_OUTPUT[division]:-}" ]] && FUNCTION_OUTPUT[division]=''
@@ -173,20 +160,20 @@ __change_scroll_area() {
 
   #-- Go down one line to avoid visual glitch 
   #-- when terminal scroll region shrinks by 1
-  builtin echo
+  echo
 
   #-- Save cursor position
-  tput sc
+  eval "${save_cursor}"
 
   #-- Set scroll region
-  tput csr 0 23
+  eval "${scroll_area} 0 23"
 
   #-- Restore cursor
-  tput rc
+  eval "${restore_cursor}"
 
   #-- Move up 1 line in case cursor was saved outside scroll region
-  tput cuu 2
-  builtin echo
+  eval "${move_up} 2"
+  echo
 
   #-- Set tty size to reflect changes to scroll region
   #-- this is to avoid i.e pagers to override the progress bar
@@ -214,7 +201,7 @@ bar::stop() {
       stop_exitcode=0
     fi
     #-- Flush progress bar
-    tput ed
+    eval "${flush}"
   fi
   #-- Restore original (if any) handler
   trap - WINCH
@@ -284,13 +271,13 @@ __draw_status_line(){
   ((padding=4))
 
   #-- Save the cursor
-  tput sc
+  eval "${save_cursor}"
   #-- Make cursor invisible
-  tput civis
+  eval "${disable_cursor}"
 
   #-- Move to last row
-  tput cup $((HEIGHT)) 0
-  builtin printf '%s' "${background}${foreground}${progress_str}${reset_color}"
+  eval "${move_to} $((HEIGHT)) 0"
+  printf '%s' "${background}${foreground}${progress_str}${reset_color}"
 
   ((progressbar_size=WIDTH-padding-${#progress_str}))
   math::float_division "$percentage" "100.00"
@@ -298,11 +285,11 @@ __draw_status_line(){
   
   __progress_string "${current_percent}" ${progressbar_size}
 
-  builtin printf '%s' " ${FUNCTION_OUTPUT[progress]} "
+  printf '%s' " ${FUNCTION_OUTPUT[progress]} "
 
   #-- Restore the cursor
-  tput rc
-  tput cnorm
+  eval "${restore_cursor}"
+  eval "${enable_cursor}"
 
   math::round "$percentage"
   ((__int_percentage=FUNCTION_OUTPUT[round]))
