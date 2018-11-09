@@ -1,5 +1,6 @@
 ## shell-progressbar
 An asynchronous progressbar for bash shell scripts inspired by APT
+
 This version is POSIX compliant and should work in most shells
 
 ![bar](https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/images/progressbar.gif)
