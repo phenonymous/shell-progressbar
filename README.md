@@ -71,8 +71,8 @@ bar::stop
 If you want to customize your progress string then change the following variables, shown below with defaults
 
 ```sh
-LEFT_BRACKET=${[:-YOURSTRING]
-RIGHT_BRACKET=${]:-YOURSTRING}
-FILL=${#:-YOURSTRING}
-REMAIN=${.:-YOURSTRING}
+LEFT_BRACKET=${LEFT_BRACKET:-"["}
+RIGHT_BRACKET=${RIGHT_BRACKET:-"]"}
+FILL=${FILL:-"#"}
+REMAIN=${REMAIN:-"."}
 ```
