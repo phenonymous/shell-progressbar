@@ -85,9 +85,17 @@ done
 bar__stop
 ```
 
-### Customization:
+### Customization
 
-You can change foreground and background color by setting these variables, shown below with defaults
+If you want to customize your progress string then change the following variables, shown below with defaults
+
+```sh
+LEFT_BRACKET=${LEFT_BRACKET:-"["}
+RIGHT_BRACKET=${RIGHT_BRACKET:-"]"}
+FILL=${FILL:-"#"}
+REMAIN=${REMAIN:-"."}
+```
+You can change foreground and background color by setting these variables
 ```sh
 foreground="$(tput setaf 0)" # black
 background="$(tput setab 2)" # green
