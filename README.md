@@ -1,8 +1,9 @@
+## TOC
 <!-- MarkdownTOC -->
 
 - [Installation](#installation)
 - [Usage](#usage)
-  - Example
+  - [Example](#example)
 - [Customization](#customization)
 
 <!-- /MarkdownTOC -->
