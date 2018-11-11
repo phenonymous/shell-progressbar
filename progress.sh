@@ -40,7 +40,7 @@ flush='tput ed'
 OS="$(uname)"
 
 #-- Solaris uses an old version of awk as standard
-if [ "$OS" == "SunOS" ]; then
+if [ "$OS" = "SunOS" ]; then
   PATH="/usr/xpg4/bin:$PATH"
 fi
 
@@ -135,7 +135,7 @@ __status_changed() {
   #-- Sanity check reporting_steps, if this value is too big no progress will be written
   #-- Should that really be checked here?
 
-  percentage=$(math__calc $(math__calc $StepsDone/$TotalSteps)*100.00)
+  percentage=$(math__calc "$(math__calc "$StepsDone/$TotalSteps")*100.00")
 
   __int_percentage=$(math__round "$percentage")
 
@@ -171,7 +171,7 @@ __progress_string() {
 
   BarSize=$((OutputSize-2))
   
-  BarDone=$(math__max 0 $(math__min $BarSize $(math__floor $(math__calc $Percent*$BarSize))))
+  BarDone=$(math__max 0 "$(math__min $BarSize "$(math__floor "$(math__calc "$Percent*$BarSize")")")")
   
   output="${output}["
   it=0
@@ -208,9 +208,9 @@ __draw_status_line(){
   printf '%s' "${background}${foreground}${progress_str}${reset_color}"
 
   progressbar_size=$((WIDTH-padding-${#progress_str}))
-  current_percent="$(math__calc $percentage/100.00)"
+  current_percent=$(math__calc "$percentage/100.00")
   
-  progress_bar="$(__progress_string ${current_percent} ${progressbar_size})"
+  progress_bar="$(__progress_string "${current_percent}" ${progressbar_size})"
 
   printf '%s' " ${progress_bar} "
 
@@ -218,7 +218,7 @@ __draw_status_line(){
   eval "${restore_cursor}"
   eval "${enable_cursor}"
 
-  last_reported_progress=$(math__round $percentage)
+  last_reported_progress=$(math__round "$percentage")
 
   return 0
 }
