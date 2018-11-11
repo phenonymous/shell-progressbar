@@ -20,8 +20,6 @@ or by using wget
 
 ### Usage:
 
-<shadow>see customize for more options</shadow>
-
 Make a call to
 
 ```sh
