@@ -86,9 +86,8 @@ math__calc() {
 
 
 __tty_size(){
-  set -- $(stty size)
-  HEIGHT=$1
-  WIDTH=$2
+  HEIGHT=${LINES:-$(tput lines)}
+  WIDTH=${COLUMNS:-$(tput cols)}
 }
 
 __change_scroll_area() {
