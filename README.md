@@ -60,7 +60,7 @@ for i in $(seq 10); do
   # Do stuff
   echo "Invoking stuff${i} to do some stuffs..."
   StepsDone=$((${StepsDone:-0}+1))
-  bar__status_changed $i $TotalSteps
+  bar__status_changed $i 10
   sleep 1
 done
 
