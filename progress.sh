@@ -186,7 +186,7 @@ __progress_string() {
 
 __draw_status_line(){
   __tty_size
-  if [ $HEIGHT -lt 1 ]|| [ $WIDTH -lt 1 ]; then
+  if [ $HEIGHT -lt 1 ] || [ $WIDTH -lt 1 ]; then
     return 1
   fi
 
