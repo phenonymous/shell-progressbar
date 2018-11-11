@@ -30,7 +30,7 @@ if [ "$OS" = "SunOS" ]; then
   PATH="/usr/xpg4/bin:$PATH"
 fi
 
-#-- FreeBSD uses other termcap names instead of terminfo
+#-- FreeBSD uses termcap names instead of terminfo
 if [ "$OS" = "FreeBSD" ]; then
   foreground="${foreground:-$(tput AF 0)}" # Foreground can be set by the user, defaults to black
   background="${background:-$(tput AB 2)}" # Background can be set by the user, defaults to green
