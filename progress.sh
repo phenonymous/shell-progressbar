@@ -23,8 +23,8 @@ last_reported_progress=-1
 #-- In which rate reporting should be done
 reporting_steps=${reporting_steps:-1}       # reporting_step can be set by the user, defaults to 1
 
-foreground="${foreground:-$(tput setaf 0)}" # Foreground can be set by the user, defaults to black
-background="${background:-$(tput setab 2)}" # Background can be set by the user, defaults to green
+foreground="${foreground:-$(tput -T xterm setaf 0)}" # Foreground can be set by the user, defaults to black
+background="${background:-$(tput -T xterm setab 2)}" # Background can be set by the user, defaults to green
 reset_color="$(tput sgr0)"
 
 #-- Command aliases for readability
@@ -42,10 +42,20 @@ OS="$(uname)"
 #-- Solaris uses an old version of awk as standard
 if [ "$OS" = "SunOS" ]; then
   PATH="/usr/xpg4/bin:$PATH"
+#-- FreeBSD uses other termcap names instead of terminfo
+elif [ "$OS" = "FreeBSD" ]; then
+  foreground="${foreground:-$(tput AF 0)}" # Foreground can be set by the user, defaults to black
+  background="${background:-$(tput AB 2)}" # Background can be set by the user, defaults to green
+  reset_color="$(tput me)"
 
-#-- OpenBSD tput setaf/b requires more than one argument if TERM is set to xterm-256color
-elif [ "$OS" = "OpenBSD" ]; then
-  TERM="xterm"
+  save_cursor='tput sc'
+  restore_cursor='tput rc'
+  disable_cursor='tput vi'
+  enable_cursor='tput ve'
+  scroll_area='tput cs'
+  move_to='tput cm'
+  move_up='tput UP'
+  flush='tput cd'
 fi
 
 # Bash does not handle floats
