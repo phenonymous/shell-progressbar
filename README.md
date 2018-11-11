@@ -1,9 +1,19 @@
-## shell-progressbar
-An asynchronous progressbar for bash shell scripts inspired by APT
+# shell-progressbar
+ > An asynchronous progressbar for bash shell scripts inspired by APT for bash4 and zsh
 
-This version is POSIX compliant and should work in most shells
+## Table of contents
+<!-- MarkdownTOC -->
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Example](#example)
+- [Customization](#customization)
+
+<!-- /MarkdownTOC -->
 
 ![bar](https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/images/progressbar.gif)
+
+This version is POSIX compliant and should work in most shells
 
 ### Installation:
 
