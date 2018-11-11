@@ -76,3 +76,9 @@ RIGHT_BRACKET=${RIGHT_BRACKET:-"]"}
 FILL=${FILL:-"#"}
 REMAIN=${REMAIN:-"."}
 ```
+You can change foreground and background color by setting these variables
+```sh
+foreground="$(tput setaf 0)" # black
+background="$(tput setab 2)" # green
+```
+you can also tweak how often reporting should be done (in case of great number of steps and quick progressing) by setting `reporting_steps` to a value bigger than 1
