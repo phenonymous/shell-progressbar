@@ -45,6 +45,7 @@ foreground="${foreground:-$(tput setaf 0)}" # Foreground can be set by the calle
 background="${background:-$(tput setab 2)}" # Background can be set by the caller, defaults to green
 reset_color="$(tput sgr0)"
 
+#-- Options to change progressbar look
 LEFT_BRACKET="${LEFT_BRACKET:-[}"
 RIGHT_BRACKET="${RIGHT_BRACKET:-]}"
 FILL="${FILL:-#}"
@@ -254,7 +255,7 @@ __progress_string() {
   
   ((BarDone=FUNCTION_OUTPUT[max]))
   
-  output+="${LEFT_BRACKET}"
+  output="${LEFT_BRACKET}"
   for (( it = 0; it < BarDone; it++ )); do
     output+="${FILL}"
   done
