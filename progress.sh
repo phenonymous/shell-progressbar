@@ -121,7 +121,11 @@ __change_scroll_area() {
   eval "${save_cursor}"
 
   #-- Set scroll region
-  eval "${scroll_area} 0 $n_rows"
+  if [ "$OS" = "FreeBSD" ]; then 
+    eval "${scroll_area} $n_rows 0"
+  else
+    eval "${scroll_area} 0 $n_rows"
+  fi
 
   #-- Restore cursor
   eval "${restore_cursor}"
