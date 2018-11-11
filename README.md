@@ -11,9 +11,9 @@
 
 <!-- /MarkdownTOC -->
 
- >> For a POSIX compliant version see instructions in branch POSIX, this includes mac users
-
 ![bar](https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/images/progressbar.gif)
+
+For a POSIX compliant version see instructions in branch POSIX, this includes mac users
 
 ### Installation:
 
