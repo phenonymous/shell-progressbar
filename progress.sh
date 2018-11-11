@@ -267,7 +267,7 @@ bar__stop() {
     return 1
   fi
   #-- Reset bar__start check
-  E_STOP_INVOKED=0
+  E_START_INVOKED=0
 
   __tty_size
   if [ $HEIGHT -gt 0 ]; then
@@ -291,7 +291,6 @@ bar__stop() {
   trap - WINCH
   return 0
 }
-
 
 bar__status_changed() {
   if [ ! ${E_START_INVOKED:-0} -lt 0 ]; then
