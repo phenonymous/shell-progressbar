@@ -213,7 +213,7 @@ bar::stop() {
     #-- Passing +2 here because we changed tty size to 1 less than it actually is
     __change_scroll_area $((HEIGHT+2))
 
-    #-- tput ed might fail in which case we force clear
+    #-- tput ed might fail (OS X) in which case we force clear
     trap 'printf "\033[J"' ERR
 
     #-- Flush progress bar
