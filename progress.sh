@@ -23,31 +23,20 @@ last_reported_progress=-1
 #-- In which rate reporting should be done
 reporting_steps=${reporting_steps:-1}       # reporting_step can be set by the user, defaults to 1
 
-foreground="${foreground:-$(tput -T xterm setaf 0)}" # Foreground can be set by the user, defaults to black
-background="${background:-$(tput -T xterm setab 2)}" # Background can be set by the user, defaults to green
-reset_color="$(tput sgr0)"
-
-#-- Command aliases for readability
-save_cursor='tput sc'
-restore_cursor='tput rc'
-disable_cursor='tput civis'
-enable_cursor='tput cnorm'
-scroll_area='tput csr'
-move_to='tput cup'
-move_up='tput cuu'
-flush='tput ed'
-
 OS="$(uname)"
 
 #-- Solaris uses an old version of awk as standard
 if [ "$OS" = "SunOS" ]; then
   PATH="/usr/xpg4/bin:$PATH"
+fi
+
 #-- FreeBSD uses other termcap names instead of terminfo
-elif [ "$OS" = "FreeBSD" ]; then
+if [ "$OS" = "FreeBSD" ]; then
   foreground="${foreground:-$(tput AF 0)}" # Foreground can be set by the user, defaults to black
   background="${background:-$(tput AB 2)}" # Background can be set by the user, defaults to green
   reset_color="$(tput me)"
 
+  #-- Command aliases for readability
   save_cursor='tput sc'
   restore_cursor='tput rc'
   disable_cursor='tput vi'
@@ -56,6 +45,20 @@ elif [ "$OS" = "FreeBSD" ]; then
   move_to='tput cm'
   move_up='tput UP'
   flush='tput cd'
+else
+  foreground="${foreground:-$(tput -T xterm setaf 0)}" # Foreground can be set by the user, defaults to black
+  background="${background:-$(tput -T xterm setab 2)}" # Background can be set by the user, defaults to green
+  reset_color="$(tput sgr0)"
+
+  #-- Command aliases for readability
+  save_cursor='tput sc'
+  restore_cursor='tput rc'
+  disable_cursor='tput civis'
+  enable_cursor='tput cnorm'
+  scroll_area='tput csr'
+  move_to='tput cup'
+  move_up='tput cuu'
+  flush='tput ed'
 fi
 
 # Bash does not handle floats
@@ -222,7 +225,11 @@ __draw_status_line(){
   eval "${disable_cursor}"
 
   #-- Move to last row
-  eval "${move_to} $((HEIGHT)) 0"
+  if [ "$OS" = "FreeBSD" ]; then
+    eval "${move_to} 0 $((HEIGHT))"
+  else
+    eval "${move_to} $((HEIGHT)) 0"
+  fi
   printf '%s' "${background}${foreground}${progress_str}${reset_color}"
 
   progressbar_size=$((WIDTH-padding-${#progress_str}))
