@@ -56,11 +56,12 @@ eval "$(wget -qO- "https://git.io/progressbarposix")"
 
 bar__start
 
-for i in $(seq 10); do
+i=1
+while [ $i -le 10 ]; do
   # Do stuff
   echo "Invoking stuff${i} to do some stuffs..."
-  StepsDone=$((${StepsDone:-0}+1))
   bar__status_changed $i 10
+  i=$((i+1))
   sleep 1
 done
 
@@ -72,6 +73,6 @@ bar__stop
 You can change foreground and background color by setting these variables, shown below with defaults
 ```sh
 foreground="$(tput setaf 0)" # black
-background="$(tput setaf 2)" # green
+background="$(tput setab 2)" # green
 ```
 you can also tweak how often reporting should be done (in case of great number of steps and quick progressing) by setting `reporting_steps` to a value bigger than 1

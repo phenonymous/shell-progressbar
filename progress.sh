@@ -42,6 +42,10 @@ OS="$(uname)"
 #-- Solaris uses an old version of awk as standard
 if [ "$OS" = "SunOS" ]; then
   PATH="/usr/xpg4/bin:$PATH"
+
+#-- OpenBSD tput setaf/b requires more than one argument if TERM is set to xterm-256color
+elif [ "$OS" = "OpenBSD" ]; then
+  TERM="xterm"
 fi
 
 # Bash does not handle floats
