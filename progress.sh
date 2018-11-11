@@ -24,8 +24,6 @@
 # FUTURE :   For future changes, this must be considered
 # IDEA   :   Ideas for future improvement or added features
 
-#-- TODO: Add customizble progress tokens ([#.]) --> ({o_})
-
 typeset -gA FUNCTION_OUTPUT
 
 #-- Static global variables
@@ -347,6 +345,7 @@ handle_sigwinch(){
 handle_exit(){
   #-- if stop_exit doesn't have value it means it wasn't invoked
   (( ! ${E_STOP_INVOKED:-0} )) && bar::stop
+  trap - EXIT
 }
 
 
