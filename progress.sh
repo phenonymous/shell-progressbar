@@ -37,6 +37,12 @@ move_to='tput cup'
 move_up='tput cuu'
 flush='tput ed'
 
+OS="$(uname)"
+
+#-- Solaris uses an old version of awk as standard
+if [ "$OS" == "SunOS" ]; then
+  PATH="/usr/xpg4/bin:$PATH"
+fi
 
 # Bash does not handle floats
 # This section defines some math functions using awk
