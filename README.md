@@ -1,10 +1,9 @@
 <!-- MarkdownTOC -->
 
-- shell-progressbar
-  - Installation:
-  - Usage:
-    - Example
-  - Customization
+- [Installation](#installation)
+- [Usage](#usage)
+  - Example
+- [Customization](#customization)
 
 <!-- /MarkdownTOC -->
 ## shell-progressbar
