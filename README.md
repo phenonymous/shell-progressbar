@@ -4,10 +4,10 @@
 ## Table of contents
 <!-- MarkdownTOC -->
 
-- Installation:
-- Usage:
-  - Example
-- Customization
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Example](#example)
+- [Customization](#customization)
 
 <!-- /MarkdownTOC -->
 
