@@ -208,7 +208,7 @@ __draw_status_line(){
   printf '%s' "${background}${foreground}${progress_str}${reset_color}"
 
   progressbar_size=$((WIDTH-padding-${#progress_str}))
-  current_percent="$(math__calc "$percentage/100.00")"
+  current_percent="$(math__calc $percentage/100.00)"
   
   progress_bar="$(__progress_string ${current_percent} ${progressbar_size})"
 
