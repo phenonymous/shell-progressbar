@@ -1,4 +1,11 @@
-## TOC
+## shell-progressbar
+An asynchronous progressbar for bash shell scripts inspired by APT for bash4 and zsh
+
+For a POSIX compliant version see instructions in branch POSIX, this includes mac users
+
+![bar](https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/images/progressbar.gif)
+
+## Table of contents
 <!-- MarkdownTOC -->
 
 - [Installation](#installation)
@@ -7,12 +14,6 @@
 - [Customization](#customization)
 
 <!-- /MarkdownTOC -->
-## shell-progressbar
-An asynchronous progressbar for bash shell scripts inspired by APT for bash4 and zsh
-
-For a POSIX compliant version see instructions in branch POSIX, this includes mac users
-
-![bar](https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/images/progressbar.gif)
 
 ### Installation:
 
