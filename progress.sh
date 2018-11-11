@@ -119,34 +119,6 @@ math::float_division() {
 # ==================================================
 
 
-__status_changed() {
-  typeset -i StepsDone TotalSteps __int_percentage
-  
-  ((StepsDone=$1))
-  ((TotalSteps=$2))
-  
-  #-- FIXME
-  #-- Sanity check reporting_steps, if this value is too big no progress will be written
-  #-- Should that really be checked here?
-
-  math::float_division $StepsDone $TotalSteps
-  math::float_multiplication "${FUNCTION_OUTPUT[division]}" "100.00"
-  percentage="${FUNCTION_OUTPUT[multiplication]}"
-  
-  math::round "$percentage"
-
-  ((__int_percentage=FUNCTION_OUTPUT[round]))
-
-  #-- FUTURE: printf -v is non-standard, for POSIX replace with subshell
-  builtin printf -v progress_str "Progress: [%3li%%]" $__int_percentage
-
-  if (( __int_percentage < (last_reported_progress + reporting_steps) )); then
-    return 1
-  else
-    return 0
-  fi
-}
-
 __tty_size(){
   set -- $(stty size)
   HEIGHT=$1
@@ -189,43 +161,32 @@ __change_scroll_area() {
   trap handle_sigwinch WINCH
 }
 
-bar::start() {
-  #-- TODO: Track process that called this function
-  # proc...
-  E_START_INVOKED=-1
-  __tty_size
-  __change_scroll_area $HEIGHT
-}
+__status_changed() {
+  typeset -i StepsDone TotalSteps __int_percentage
+  
+  ((StepsDone=$1))
+  ((TotalSteps=$2))
+  
+  #-- FIXME
+  #-- Sanity check reporting_steps, if this value is too big no progress will be written
+  #-- Should that really be checked here?
 
-bar::stop() {
-  E_STOP_INVOKED=-1
-  if (( ! ${E_START_INVOKED:-0} )); then
-    echo "Warn: bar::stop called but bar::start was not invoked" >&2 
-    echo "Returning.." # Exit or return?
+  math::float_division $StepsDone $TotalSteps
+  math::float_multiplication "${FUNCTION_OUTPUT[division]}" "100.00"
+  percentage="${FUNCTION_OUTPUT[multiplication]}"
+  
+  math::round "$percentage"
+
+  ((__int_percentage=FUNCTION_OUTPUT[round]))
+
+  #-- FUTURE: printf -v is non-standard, for POSIX replace with subshell
+  builtin printf -v progress_str "Progress: [%3li%%]" $__int_percentage
+
+  if (( __int_percentage < (last_reported_progress + reporting_steps) )); then
     return 1
+  else
+    return 0
   fi
-  #-- Reset bar::start check
-  E_STOP_INVOKED=0
-
-  __tty_size
-  if ((HEIGHT > 0)); then
-    #-- Passing +2 here because we changed tty size to 1 less than it actually is
-    __change_scroll_area $((HEIGHT+2))
-
-    #-- tput ed might fail (OS X) in which case we force clear
-    trap 'printf "\033[J"' ERR
-
-    #-- Flush progress bar
-    eval "${flush}"
-   
-    trap - ERR
-    #-- Go up one row after flush
-    echo
-    eval "${move_up} 1"
-  fi
-  #-- Restore original (if any) handler
-  trap - WINCH
-  return 0
 }
 
 __progress_string() {
@@ -263,26 +224,6 @@ __progress_string() {
   output+="${RIGHT_BRACKET}"
   FUNCTION_OUTPUT[progress]="$output"
   return 0
-}
-
-#-- FIXME: Pass worker pid?
-bar::status_changed() {
-  if (( ! ${E_START_INVOKED:-0} )); then
-    echo "ERR: bar::start not called" >&2
-    echo "Exiting.."
-    exit 1
-  fi
-  local -i StepsDone TotalSteps
-
-  ((StepsDone=$1))
-  ((TotalSteps=$2))
-
-  if ! __status_changed $StepsDone $TotalSteps; then
-    return 1
-  fi
-  
-  __draw_status_line
-  return $?
 }
 
 __draw_status_line(){
@@ -324,9 +265,67 @@ __draw_status_line(){
   return 0
 }
 
+bar::start() {
+  #-- TODO: Track process that called this function
+  # proc...
+  E_START_INVOKED=-1
+  __tty_size
+  __change_scroll_area $HEIGHT
+}
+
+bar::stop() {
+  E_STOP_INVOKED=-1
+  if (( ! ${E_START_INVOKED:-0} )); then
+    echo "Warn: bar::stop called but bar::start was not invoked" >&2 
+    echo "Returning.." # Exit or return?
+    return 1
+  fi
+  #-- Reset bar::start check
+  E_START_INVOKED=0
+
+  __tty_size
+  if ((HEIGHT > 0)); then
+    #-- Passing +2 here because we changed tty size to 1 less than it actually is
+    __change_scroll_area $((HEIGHT+2))
+
+    #-- tput ed might fail (OS X) in which case we force clear
+    trap 'printf "\033[J"' ERR
+
+    #-- Flush progress bar
+    eval "${flush}"
+   
+    trap - ERR
+    #-- Go up one row after flush
+    eval "${move_up} 1"
+    echo
+  fi
+  #-- Restore original (if any) handler
+  trap - WINCH
+  return 0
+}
+
+#-- FIXME: Pass worker pid?
+bar::status_changed() {
+  if (( ! ${E_START_INVOKED:-0} )); then
+    echo "ERR: bar::start not called" >&2
+    echo "Exiting.."
+    exit 1
+  fi
+  local -i StepsDone TotalSteps
+
+  ((StepsDone=$1))
+  ((TotalSteps=$2))
+
+  if ! __status_changed $StepsDone $TotalSteps; then
+    return 1
+  fi
+  
+  __draw_status_line
+  return $?
+}
+
 
 ####################################################
-
 
 
 # This section defines some functions that should be
