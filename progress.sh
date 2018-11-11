@@ -23,6 +23,11 @@ last_reported_progress=-1
 #-- In which rate reporting should be done
 reporting_steps=${reporting_steps:-1}       # reporting_step can be set by the user, defaults to 1
 
+#-- Options to change progressbar look
+LEFT_BRACKET="${LEFT_BRACKET:-[}"
+RIGHT_BRACKET="${RIGHT_BRACKET:-]}"
+FILL="${FILL:-#}"
+REMAIN="${REMAIN:-.}"
 OS="$(uname)"
 
 #-- Solaris uses an old version of awk as standard
@@ -194,18 +199,18 @@ __progress_string() {
   
   BarDone=$(math__max 0 "$(math__min $BarSize "$(math__floor "$(math__calc "$Percent*$BarSize")")")")
   
-  output="${output}["
+  output="${LEFT_BRACKET}"
   it=0
   while [ $it -lt $BarDone ]; do
-    output="${output}#"
+    output="${output}${FILL}"
     it=$((it+1))
   done
   it=0
   while [ $it -lt $((BarSize-BarDone)) ]; do
-    output="${output}."
+    output="${output}${REMAIN}"
     it=$((it+1))
   done
-  output="${output}]"
+  output="${output}${RIGHT_BRACKET}"
   echo "$output"
   return 0
 }
