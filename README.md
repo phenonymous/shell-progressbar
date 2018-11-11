@@ -52,7 +52,7 @@ when you're done and this function will restore the terminal size.
 ```sh
 #!/usr/bin/env sh
 
-eval "$(wget -qO- "https://git.io/progressbar")"
+eval "$(wget -qO- "https://git.io/progressbarposix")"
 
 bar__start
 
