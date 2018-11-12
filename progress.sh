@@ -273,7 +273,7 @@ bar__stop() {
   if [ $HEIGHT -gt 0 ]; then
     #-- Passing +2 here because we changed tty size to 1 less than it actually is
     __change_scroll_area $((HEIGHT+2))
-
+    echo "test"
     #-- tput ed might fail (OS X) in which case we force clear
     #-- POSIX sh don't specify ERR, this is a work around
     set -e
