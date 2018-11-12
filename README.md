@@ -2,14 +2,11 @@
  > An asynchronous progressbar for bash shell scripts inspired by APT for bash4 and zsh
 
 ## Table of contents
-<!-- MarkdownTOC -->
 
-- Installation:
-- Usage:
-  - Example
-- Customization
-
-<!-- /MarkdownTOC -->
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Example](#example)
+- [Customization](#customization)
 
 ![bar](https://raw.githubusercontent.com/phenonymous/shell-progressbar/master/images/progressbar.gif)
 

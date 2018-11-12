@@ -124,7 +124,7 @@ __change_scroll_area() {
 
   #-- Move up 1 line in case cursor was saved outside scroll region
   eval "${move_up} 2"
-  
+
   echo
 
   #-- Set tty size to reflect changes to scroll region
