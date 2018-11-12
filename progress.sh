@@ -15,6 +15,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>
+set -a
 
 # The following terms are used for maintainment
 # FIXME  :   Code that needs to improved or does not work
@@ -23,15 +24,6 @@
 # TODO   :   Reminder for code that needs to be added or changed
 # FUTURE :   For future changes, this must be considered
 # IDEA   :   Ideas for future improvement or added features
-
-typeset -gA FUNCTION_OUTPUT
-
-#-- Static global variables
-typeset -g background foreground reset_color 
-
-#-- Dynamic global variables
-typeset -g progress_str percentage
-typeset -gi HEIGHT WIDTH last_reported_progress reporting_steps
 
 percentage="0.0"
 last_reported_progress=-1
@@ -59,59 +51,42 @@ move_to='tput cup'
 move_up='tput cuu'
 flush='tput ed'
 
-#-- TODO: Replace FUNCTION_OUTPUT with subshells, it's less confusing and the performance gain is negletible
 
 # Bash does not handle floats
 # This section defines some math functions using awk
 # ==================================================
 
+
 math::floor() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds down to nearest integer
-  [[ -n "${FUNCTION_OUTPUT[floor]:-}" ]] && FUNCTION_OUTPUT[floor]=''
-  FUNCTION_OUTPUT[floor]="$(awk -v f="$1" 'BEGIN{f=int(f); print f}')"
-}
-
-math::ceiling() {
-  #-- This function takes a pseudo-floating point as argument
-  #-- and rounds up to nearest integer
-  [[ -n "${FUNCTION_OUTPUT[ceiling]:-}" ]] && FUNCTION_OUTPUT[ceiling]=''
-  FUNCTION_OUTPUT[ceiling]="$(awk -v f="$1" 'BEGIN{f=int(f)+1; print f}')"
+  awk -v f="$1" 'BEGIN{f=int(f); print f}'
 }
 
 math::round() {
   #-- This function takes a pseudo-floating point as argument
   #-- and rounds to nearest integer
-  [[ -n "${FUNCTION_OUTPUT[round]:-}" ]] && FUNCTION_OUTPUT[round]=''
-  FUNCTION_OUTPUT[round]="$(awk -v f="$1" 'BEGIN {printf "%.0f\n", f}')"
+  awk -v f="$1" 'BEGIN {printf "%.0f\n", f}'
 }
 
 math::min() {
   #-- Takes two values as arguments and compare them
-  [[ -n "${FUNCTION_OUTPUT[min]:-}" ]] && FUNCTION_OUTPUT[min]=''
-  FUNCTION_OUTPUT[min]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; printf min "\n"}')"
+  awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; printf min "\n"}'
 }
 
 math::max() {
   #-- Takes two values as arguments and compare them
-  [[ -n "${FUNCTION_OUTPUT[max]:-}" ]] && FUNCTION_OUTPUT[max]=''
-  FUNCTION_OUTPUT[max]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}')"
+  awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}'
 }
 
-math::float_multiplication() {
-  #-- Takes two floats and multiply them
-  [[ -n "${FUNCTION_OUTPUT[multiplication]:-}" ]] && FUNCTION_OUTPUT[multiplication]=''
-  FUNCTION_OUTPUT[multiplication]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 * f2}')  "
-}
-
-math::float_division() {
-  #-- Takes two floats and divide them
-  [[ -n "${FUNCTION_OUTPUT[division]:-}" ]] && FUNCTION_OUTPUT[division]=''
-  FUNCTION_OUTPUT[division]="$(awk -v f1="$1" -v f2="$2" 'BEGIN{print f1 / f2}')"
+math::calc() {
+  #-- Normal calculator
+  awk "BEGIN{print $*}"
 }
 
 
 ####################################################
+
 
 
 
@@ -126,13 +101,13 @@ __tty_size(){
 }
 
 __change_scroll_area() {
-  typeset -i n_rows=$1
+  local -i n_rows=$1
   #-- Return if number of lines is 1
   if (( n_rows <= 1)); then
     return 1
   fi
 
-  ((n_rows=n_rows-2))
+  ((n_rows-=2))
 
   #-- Go down one line to avoid visual glitch 
   #-- when terminal scroll region shrinks by 1
@@ -149,12 +124,13 @@ __change_scroll_area() {
 
   #-- Move up 1 line in case cursor was saved outside scroll region
   eval "${move_up} 2"
+
   echo
 
   #-- Set tty size to reflect changes to scroll region
   #-- this is to avoid i.e pagers to override the progress bar
   ((++n_rows))
-  
+
   #-- Temporarily disabling SIGWINCH to avoid a loop caused by stty sending SIGWINCH whenever theres a change in size
   trap '' WINCH
   stty rows $n_rows
@@ -162,7 +138,7 @@ __change_scroll_area() {
 }
 
 __status_changed() {
-  typeset -i StepsDone TotalSteps __int_percentage
+  local -i StepsDone TotalSteps __int_percentage
   
   ((StepsDone=$1))
   ((TotalSteps=$2))
@@ -171,16 +147,11 @@ __status_changed() {
   #-- Sanity check reporting_steps, if this value is too big no progress will be written
   #-- Should that really be checked here?
 
-  math::float_division $StepsDone $TotalSteps
-  math::float_multiplication "${FUNCTION_OUTPUT[division]}" "100.00"
-  percentage="${FUNCTION_OUTPUT[multiplication]}"
-  
-  math::round "$percentage"
+  percentage=$(math::calc "$(math::calc "$StepsDone/$TotalSteps")*100.00")
 
-  ((__int_percentage=FUNCTION_OUTPUT[round]))
+  ((__int_percentage=$(math::round "$percentage")))
 
-  #-- FUTURE: printf -v is non-standard, for POSIX replace with subshell
-  builtin printf -v progress_str "Progress: [%3li%%]" $__int_percentage
+  printf -v progress_str "Progress: [%3li%%]" $__int_percentage
 
   if (( __int_percentage < (last_reported_progress + reporting_steps) )); then
     return 1
@@ -190,10 +161,8 @@ __status_changed() {
 }
 
 __progress_string() {
-  [[ -n ${FUNCTION_OUTPUT[progress]:-} ]] && FUNCTION_OUTPUT[progress]=''
-  
   local output Percent
-  typeset -i OutputSize BarSize BarDone it
+  local -i OutputSize BarSize BarDone it
   
   output=""
   Percent="$1"
@@ -201,18 +170,13 @@ __progress_string() {
 
   #-- Return an empty string if OutputSize is less than 3
   if ((OutputSize < 3)); then
-    FUNCTION_OUTPUT[progress]="$output"
+    echo "$output"
     return 1
   fi
 
   ((BarSize=OutputSize-2))
   
-  math::float_multiplication "$Percent" $BarSize
-  math::floor "${FUNCTION_OUTPUT[multiplication]}"
-  math::min $BarSize "${FUNCTION_OUTPUT[floor]}"
-  math::max 0 "${FUNCTION_OUTPUT[min]}"
-  
-  ((BarDone=FUNCTION_OUTPUT[max]))
+  BarDone=$(math::max 0 "$(math::min $BarSize "$(math::floor "$(math::calc "$Percent*$BarSize")")")")
   
   output="${LEFT_BRACKET}"
   for (( it = 0; it < BarDone; it++ )); do
@@ -222,19 +186,23 @@ __progress_string() {
     output+="${REMAIN}"
   done
   output+="${RIGHT_BRACKET}"
-  FUNCTION_OUTPUT[progress]="$output"
+  
+  echo "$output"
+
   return 0
 }
 
 __draw_status_line(){
   __tty_size
-  if (( HEIGHT < 1 || WIDTH< 1 )); then
+  if (( HEIGHT < 1 || WIDTH < 1 )); then
     return 1
   fi
 
-  local current_percent
-  typeset -i padding __int_percentage progressbar_size
+  local current_percent progress_bar
+  local -i padding progressbar_size
   ((padding=4))
+
+  progress_bar=""
 
   #-- Save the cursor
   eval "${save_cursor}"
@@ -246,24 +214,21 @@ __draw_status_line(){
   printf '%s' "${background}${foreground}${progress_str}${reset_color}"
 
   ((progressbar_size=WIDTH-padding-${#progress_str}))
-  math::float_division "$percentage" "100.00"
-  current_percent="${FUNCTION_OUTPUT[division]}"
+  current_percent=$(math::calc "$percentage/100.00")
   
-  __progress_string "${current_percent}" ${progressbar_size}
+  progress_bar="$(__progress_string "${current_percent}" ${progressbar_size})"
 
-  printf '%s' " ${FUNCTION_OUTPUT[progress]} "
+  printf '%s' " ${progress_bar} "
 
   #-- Restore the cursor
   eval "${restore_cursor}"
   eval "${enable_cursor}"
 
-  math::round "$percentage"
-  ((__int_percentage=FUNCTION_OUTPUT[round]))
-
-  ((last_reported_progress=__int_percentage))
+  ((last_reported_progress=$(math::round "$percentage")))
 
   return 0
 }
+
 
 bar::start() {
   #-- TODO: Track process that called this function
@@ -335,8 +300,7 @@ bar::status_changed() {
 
 handle_sigwinch(){
   __tty_size
-  typeset -i n_rows
-  ((n_rows=HEIGHT))
+  n_rows=$HEIGHT
   __change_scroll_area $n_rows
   __draw_status_line
 }
