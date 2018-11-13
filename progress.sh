@@ -69,7 +69,7 @@ fi
 # Bash does not handle floats
 # This section defines some math functions using awk
 # ==================================================
-
+export LC_ALL=C
 
 math__floor() {
   #-- This function takes a pseudo-floating point as argument
@@ -85,12 +85,12 @@ math__round() {
 
 math__min() {
   #-- Takes two values as arguments and compare them
-  awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; printf min "\n"}'
+  awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1<=f2) min=f1; else min=f2; print min "\n"}'
 }
 
 math__max() {
   #-- Takes two values as arguments and compare them
-  awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; printf max "\n"}'
+  awk -v f1="$1" -v f2="$2" 'BEGIN{if (f1>f2) max=f1; else max=f2; print max "\n"}'
 }
 
 math__calc() {
