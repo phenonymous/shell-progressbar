@@ -337,5 +337,7 @@ handle_exit(){
 
 ####################################################
 
+set +a
+
 trap handle_sigwinch WINCH
 trap handle_exit EXIT HUP INT QUIT PIPE TERM
